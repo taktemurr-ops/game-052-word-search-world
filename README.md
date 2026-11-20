@@ -1,29 +1,57 @@
-# Word Search World
+# Kelime Avı Dünyası · Word Search World
 
-Game Studio 100 | Kelime ve Bilgi | Flutter + Flame | Android + iOS
+**Game Studio 100 · #052 · Kelime ve Bilgi** · Flutter · Android · iOS · Web
 
-## Product strategy
-Combine useful modes and mechanisms of competing games into one cohesive,
-distinctive, legally independent game. Competitive features are research
-candidates, NOT confirmed implementations.
+Harf tablosunda saklı kelimeleri bul!
 
-## MVP
-- Reliable core gameplay loop with pause/resume, save, audio and settings
-- Guided onboarding, session metrics and accessibility considerations
-- Levels or escalating difficulty; progress and achievements
-- Ad and IAP adapters (disabled until fully configured and tested)
-- Android/iOS release preparation and privacy requirements
+## Oyun
 
-## Later releases
-- Additional game modes and mechanics after competitor analysis
-- Events, daily challenges, cosmetics, social or leaderboard features where suitable
-- Analytics and A/B tests for retention, difficulty and ad frequency
+16 temada (hayvanlar, yiyecekler, ulaşım…) kelime avı; tablo 6×6'dan 11×11'e büyür.
 
-## Acceptance
-- Deterministic rule tests and device performance verification
-- Game plays without crashes; save/load retains progress
-- Offline play where the mode does not require a network
-- Ads never interrupt an active gameplay turn
-- Store policy, privacy consent and purchase restore checks
+- Yatay, dikey, çapraz ve ters kelimeler (zorluğa göre)
+- Sürükleyerek ya da iki dokunuşla seçim
+- **Mekanikler:** gizli liste, ters kelimeler, süre
+- Her kelimenin tabloda tam bir kez geçtiği doğrulanır (çözülebilirlik garantisi)
 
-See docs for feature backlog, research method, revenue plan and roadmap.
+## Bütün oyunlarda ortak sistemler
+
+| Sistem | Durum | Dosya |
+|---|---|---|
+| 50.000 bölüm + sonsuz bölüm (seed ile deterministik, her bölüm çözülebilirlik testinden geçer) | ✅ | `lib/core/level_plan.dart`, `lib/game/rules.dart` |
+| 500 dünya, her 10 bölümde zorluk, her 50 bölümde yeni mekanik kombinasyonu, her 100 bölümde tema, her 1000 bölümde özel ödül | ✅ | `lib/core/level_plan.dart` |
+| Oyuncu performansına göre zorluk ayarı | ✅ | `AdaptiveDifficulty` |
+| Modlar: Macera, Sonsuz, Zamana karşı, Zen, Günün bölümü, Haftanın bölümü, 150 meydan okuma | ✅ | `lib/app/screens/home.dart` |
+| Günlük giriş ödülü (7 günlük döngü), seri, şans çarkı, günlük sürpriz, geri dönen oyuncu ödülü | ✅ | `lib/core/daily.dart` |
+| 4 günlük + 7 haftalık görev (tarihe göre otomatik yenilenir), günlük rekor, haftalık kişisel hedef | ✅ | `lib/core/missions.dart` |
+| 200+ başarım (50+ gizli) | ✅ | `lib/core/achievements.dart` |
+| Oyuncu seviyesi 1-500, 5 kademe (Başlangıç → Efsane) | ✅ | `lib/core/progression.dart` |
+| 236 koleksiyon parçası: tema, görünüm, rozet, avatar, çerçeve, efekt | ✅ | `lib/core/collection.dart` |
+| İnternetsiz oyun, otomatik kayıt, 3 yedek + yarım kalan yazmayı kurtarma, checksum, sürüm geçişi, yedek kodu ile dışa/içe aktarma | ✅ | `lib/core/save_store.dart`, `lib/core/save_data.dart` |
+| Uygulama kapanınca bölüme kaldığı yerden devam | ✅ | `resume` |
+| Saat manipülasyonu koruması | ✅ | `lib/core/clock.dart` |
+| Çökme döngüsü algılama → güvenli mod, hata günlüğü, performans ölçümü | ✅ | `lib/core/telemetry.dart` |
+| Acil durum yapılandırması (reklam/satın alma/analitik kapatma) | ✅ | `assets/config/emergency.json` |
+| İzinli, çevrimdışı kuyruklu analitik | ✅ | `AnalyticsQueue` |
+| AdMob: ödüllü + geçiş reklamı, sıklık sınırı, UMP/GDPR rızası, yaş kontrolü | ✅ (test kimlikleri) | `lib/app/services/ads_mobile.dart` |
+| Satın alma: reklamsız, premium, altın, ipucu, başlangıç paketi; doğrulama, geri yükleme, iade, tekrar koruması | ✅ (ürünler mağazada açılmalı) | `lib/core/monetization.dart` |
+| 5 dil (TR, EN, DE, ES, FR), renk körü modu, animasyon azaltma, yazı boyutu, solak düzen, titreşim | ✅ | `lib/core/strings.dart`, Ayarlar |
+| Özgün ikon, splash, ses efektleri, müzik, mağaza görselleri (kodla üretilir) | ✅ | `tool/generate_assets.py` |
+| CI: analiz, testler, APK + AAB, Web; iOS (manuel); haftalık 10.000 bölüm + 24 ay simülasyonu | ✅ | `.github/workflows/` |
+
+## Çalıştırma
+
+```bash
+pip install pillow && python tool/generate_assets.py   # ikon, splash, ses, mağaza görselleri
+flutter create --platforms=android,ios,web --org com.gamestudio100 --project-name game_052_word_search_world .
+python tool/patch_platforms.py                         # AdMob id, izinler, uygulama adı
+flutter pub get
+dart run flutter_launcher_icons && dart run flutter_native_splash:create
+flutter test
+flutter run                                            # veya: flutter run -d chrome
+```
+
+Uzun testler: `flutter test --dart-define=LONG=true test/long_run_test.dart test/soak_test.dart`
+
+## Yayın öncesi yapılacaklar
+
+`docs/RELEASE.md` dosyasına bak: AdMob kimlikleri, mağaza ürünleri, imzalama anahtarları, gizlilik politikası adresi.
