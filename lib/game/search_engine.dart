@@ -1,5 +1,5 @@
-import '../core/level_plan.dart';
-import '../core/rng.dart';
+import 'package:studio_core/core/level_plan.dart';
+import 'package:studio_core/core/rng.dart';
 import 'word_kit.dart';
 
 /// Word Search: words hidden in a letter grid in straight lines.
